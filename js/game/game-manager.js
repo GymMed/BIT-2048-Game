@@ -5,11 +5,21 @@ const GAME_STATE_ENUM = {
 };
 
 class GameManager {
-    constructor(mapDom, newGameButtonDom, currentScoreDom, bestScoreDom) {
+    constructor(
+        mapDom,
+        newGameButtonDom,
+        currentScoreDom,
+        bestScoreDom,
+        gameMenuWinDom,
+        gameMenuLoseDom
+    ) {
         this.state = GAME_STATE_ENUM.running;
         this.scoreBoard = new GameScoreBoard(currentScoreDom, bestScoreDom);
         this.gameMap = new GameMap(mapDom);
+
         this.newGameButtonDom = newGameButtonDom;
+        this.gameMenuWinDom = gameMenuWinDom;
+        this.gameMenuLoseDom = gameMenuLoseDom;
 
         this.gameMap.spawnCubes(12);
 
@@ -20,6 +30,32 @@ class GameManager {
 
         this.handleNewGameClick = this.handleNewGameClick.bind(this);
         newGameButtonDom.addEventListener("click", this.handleNewGameClick);
+        this.initGameScreens();
+    }
+
+    initGameScreens() {
+        this.hideLoseDom();
+        this.hideWinDom();
+
+        let winTryAgainBtnDom =
+            this.gameMenuWinDom.querySelector("#btn-win-try-again");
+        let loseTryAgainBtnDom = this.gameMenuLoseDom.querySelector(
+            "#btn-lose-try-again"
+        );
+        let keepGoingBtnDom =
+            this.gameMenuWinDom.querySelector("#btn-keep-going");
+
+        winTryAgainBtnDom.addEventListener("click", () => {
+            this.restart();
+        });
+
+        loseTryAgainBtnDom.addEventListener("click", () => {
+            this.restart();
+        });
+
+        keepGoingBtnDom.addEventListener("click", () => {
+            this.hideWinDom();
+        });
     }
 
     handleNewGameClick(event) {
@@ -31,8 +67,7 @@ class GameManager {
                         "Are you sure you want to start a new game? All progress will be lost."
                     )
                 ) {
-                    this.gameMap.restart();
-                    this.state = GAME_STATE_ENUM.running;
+                    this.restart();
                 }
                 break;
             }
@@ -45,8 +80,23 @@ class GameManager {
         }
     }
 
+    win() {
+        //needs implementation on 2048 merge
+        console.log("You won!");
+        this.showWinDom();
+    }
+
     lose() {
         console.log("You lose! You are out of moves!");
+        this.showLoseDom();
+    }
+
+    restart() {
+        this.gameMap.restart();
+        // this.state = GAME_STATE_ENUM.running;
+
+        this.hideLoseDom();
+        this.hideWinDom();
     }
 
     handleKeyInput(event) {
@@ -102,5 +152,33 @@ class GameManager {
     moveCubesLeft() {
         this.gameMap.moveLeft();
         this.turnEnd();
+    }
+
+    showLoseDom() {
+        if (this.gameMenuLoseDom.classList.contains("d-none")) {
+            this.state = GAME_STATE_ENUM.stopped;
+            this.gameMenuLoseDom.classList.remove("d-none");
+        }
+    }
+
+    showWinDom() {
+        if (this.gameMenuWinDom.classList.contains("d-none")) {
+            this.state = GAME_STATE_ENUM.stopped;
+            this.gameMenuWinDom.classList.remove("d-none");
+        }
+    }
+
+    hideLoseDom() {
+        if (!this.gameMenuLoseDom.classList.contains("d-none")) {
+            this.state = GAME_STATE_ENUM.running;
+            this.gameMenuLoseDom.classList.add("d-none");
+        }
+    }
+
+    hideWinDom() {
+        if (!this.gameMenuWinDom.classList.contains("d-none")) {
+            this.state = GAME_STATE_ENUM.running;
+            this.gameMenuWinDom.classList.add("d-none");
+        }
     }
 }

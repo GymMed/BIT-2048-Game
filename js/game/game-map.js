@@ -14,6 +14,7 @@ class GameMap {
 
         this.takenSpace = [];
         this.availableSpace = [];
+        this.gameAnimationManager = new GameAnimationManager();
 
         this.fillAvailableSpace();
     }
@@ -401,6 +402,7 @@ class GameMap {
 
         this.removeCube(row, column);
         this.makeCube(upgradedCubeType, row, column);
+        this.animatePopUpCube(row, column);
     }
 
     canUpgrade(mergeToSpaceColumnType, currentSpaceColumnType) {
@@ -452,6 +454,7 @@ class GameMap {
         let randomType = this.getRandomCube();
 
         this.makeCube(randomType, y, x);
+        this.animatePopUpCube(y, x);
     }
 
     makeCube(cubeByType, y, x) {
@@ -465,6 +468,13 @@ class GameMap {
 
         this.availableSpace[y][x] = cubeByType.getType();
     }
+
+    animatePopUpCube(y, x) {
+        let coordinateDom = this.getGameMapCoordinateDom(y, x);
+        this.gameAnimationManager.animatePopUp(coordinateDom);
+    }
+
+    animateMoveCube(toY, toX, fromY, fromX) {}
 
     removeCube(y, x) {
         let coordinateDom = this.getGameMapCoordinateDom(y, x);

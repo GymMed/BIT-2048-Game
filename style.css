@@ -15,7 +15,7 @@
     --cube-256: #edcc62;
     --cube-512: #ecc850;
     --cube-1024: #efc53f;
-    --cube-2048: #eec22e;
+    --cube-2048: rgb(238, 194, 46);
     --cube-overflow: #2f3124;
 }
 
@@ -87,6 +87,7 @@ body {
 
 .bg-cube-2048 {
     background-color: var(--cube-2048);
+    box-shadow: 0 1rem 3rem rgba(238, 194, 46, 5.175);
 }
 
 .bg-cube-overflow {
