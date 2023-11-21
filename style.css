@@ -1,0 +1,115 @@
+:root {
+    --brand-100: #faf8ef;
+    --brand-300: #bbada0;
+    --brand-400: #8f7a66;
+    --brand-800: #776e65;
+
+    --cube-missing: #cdc1b4;
+    --cube-2: #eee4da;
+    --cube-4: #eee1c9;
+    --cube-8: #f3b27a;
+    --cube-16: #f69664;
+    --cube-32: #f77c5f;
+    --cube-64: #f75f3b;
+    --cube-128: #edd073;
+    --cube-256: #edcc62;
+    --cube-512: #ecc850;
+    --cube-1024: #efc53f;
+    --cube-2048: #eec22e;
+    --cube-overflow: #2f3124;
+}
+
+html,
+body {
+    height: 100%;
+    caret-color: transparent;
+}
+
+.bg-brand-100 {
+    background-color: var(--brand-100);
+}
+
+.bg-brand-400 {
+    background-color: var(--brand-400);
+}
+
+.bg-brand-800 {
+    background-color: var(--brand-800);
+}
+
+.bg-brand-300 {
+    background-color: var(--brand-300);
+}
+
+.bg-cube-missing {
+    background-color: var(--cube-missing);
+}
+
+.bg-cube-2 {
+    background-color: var(--cube-2);
+}
+
+.bg-cube-4 {
+    background-color: var(--cube-4);
+}
+
+.bg-cube-8 {
+    background-color: var(--cube-8);
+}
+
+.bg-cube-16 {
+    background-color: var(--cube-16);
+}
+
+.bg-cube-32 {
+    background-color: var(--cube-32);
+}
+
+.bg-cube-64 {
+    background-color: var(--cube-64);
+}
+
+.bg-cube-128 {
+    background-color: var(--cube-128);
+}
+
+.bg-cube-256 {
+    background-color: var(--cube-256);
+}
+
+.bg-cube-512 {
+    background-color: var(--cube-512);
+}
+
+.bg-cube-1024 {
+    background-color: var(--cube-1024);
+}
+
+.bg-cube-2048 {
+    background-color: var(--cube-2048);
+}
+
+.bg-cube-overflow {
+    background-color: var(--cube-overflow);
+}
+
+.color-brand-800 {
+    color: var(--brand-800);
+}
+
+.info__tutorial__a {
+    text-decoration: underline;
+}
+
+.new-game button:hover .spc-btn {
+    transform: scale(1.1);
+}
+
+.extra-large {
+    font-size: 4.5rem;
+}
+
+.game__body {
+    width: 30rem;
+    height: 30rem;
+}
