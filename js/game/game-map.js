@@ -7,16 +7,69 @@ const emptyPosition = -1;
 let currentScore = 0;
 
 class GameMap {
-    constructor(mapDom, width = 4, height = 4) {
+    constructor(
+        mapDom,
+        moveAnimationsEndTrigger,
+        popUpAnimationsEndTrigger,
+        width = 4,
+        height = 4
+    ) {
         this.width = width;
         this.height = height;
         this.mapDom = mapDom;
 
-        this.takenSpace = [];
         this.availableSpace = [];
         this.gameAnimationManager = new GameAnimationManager();
 
         this.fillAvailableSpace();
+
+        if (
+            typeof moveAnimationsEndTrigger === "function" &&
+            typeof popUpAnimationsEndTrigger === "function"
+        ) {
+            this.allMoveAnimationEndEvent = new CustomEvent(
+                "allMoveAnimationsEnd",
+                {}
+            );
+            this.allPopUpAnimationsEndEvent = new CustomEvent(
+                "allPopUpAnimationsEnd",
+                {}
+            );
+
+            this.totalPopUpsStart = 0;
+            this.totalPopUpsEnd = 0;
+            this.popUpAnimationsEndTrigger = popUpAnimationsEndTrigger;
+
+            this.totalMoveAnimationsStart = 0;
+            this.totalMoveAnimationsEnd = 0;
+            this.moveAnimationsEndTrigger = moveAnimationsEndTrigger;
+
+            this.addAnimationsListenersForMap();
+        }
+    }
+
+    addAnimationsListenersForMap() {
+        this.mapDom.addEventListener("allMoveAnimationsEnd", () => {
+            console.log(
+                this.totalMoveAnimationsEnd,
+                this.totalMoveAnimationsStart,
+                "animator moves"
+            );
+            this.totalMoveAnimationsStart = 0;
+            this.totalMoveAnimationsEnd = 0;
+            this.moveAnimationsEndTrigger();
+        });
+
+        this.mapDom.addEventListener("allPopUpAnimationsEnd", () => {
+            console.log(
+                this.totalPopUpsEnd,
+                this.totalPopUpsStart,
+                "animator pop ups"
+            );
+            this.totalPopUpsStart = 0;
+            this.totalPopUpsEnd = 0;
+            this.popUpAnimationsEndTrigger();
+        });
     }
 
     getRandomIntInclusive(min, max) {
@@ -24,15 +77,142 @@ class GameMap {
     }
 
     fillAvailableSpace() {
-        let currentX = 0;
+        let column = 0;
+        let cubeDom = null;
 
-        for (let currentY = 0; currentY < this.height; currentY++) {
-            this.availableSpace[currentY] = [];
+        for (let row = 0; row < this.height; row++) {
+            this.availableSpace[row] = [];
 
-            for (currentX = 0; currentX < this.width; currentX++) {
-                this.availableSpace[currentY][currentX] = emptyPosition;
+            for (column = 0; column < this.width; column++) {
+                this.availableSpace[row][column] = emptyPosition;
+                cubeDom = this.getGameMapCoordinateDom(row, column);
+
+                cubeDom.addEventListener(
+                    "animationend",
+                    this.animationEndListener.bind(this)
+                );
             }
         }
+    }
+
+    animationEndListener(event) {
+        event.currentTarget.style.animationName = "";
+        event.currentTarget.style.animationDuration = "";
+
+        if (event.animationName == popAnimationName) {
+            console.log("zd", event.animationName);
+            this.popHandler();
+            return;
+        }
+
+        if (
+            event.currentTarget.moveInformation === undefined ||
+            !(event.currentTarget.moveInformation instanceof MoveInformation) ||
+            !event.animationName.includes(animationPrefix)
+        )
+            return;
+
+        let moveInformation = event.currentTarget.moveInformation;
+        console.log(
+            "moveend",
+            moveInformation.getMoveY(),
+            moveInformation.getMoveX(),
+            moveInformation.getFromY(),
+            moveInformation.getFromX(),
+            this.availableSpace[moveInformation.getMoveY()][
+                moveInformation.getMoveX()
+            ],
+            this.availableSpace,
+            event.animationName
+        );
+
+        if (moveInformation.isMerged()) {
+            this.mergeHandler(moveInformation);
+        } else {
+            this.moveHandler(moveInformation);
+        }
+
+        // this.makeCube(
+        //     cubesByType[this.availableSpace[fromY][fromX]],
+        //     moveToY,
+        //     moveToX
+        // );
+        // this.removeCube(fromY, fromX);
+    }
+
+    popHandler() {
+        this.totalPopUpsEnd++;
+        console.log("popHandler", this.totalPopUpsStart, this.totalPopUpsEnd);
+
+        if (this.totalPopUpsEnd === this.totalPopUpsStart)
+            this.getGameMapDom().dispatchEvent(this.allPopUpAnimationsEndEvent);
+    }
+
+    moveHandler(moveInformation) {
+        if (
+            this.availableSpace[moveInformation.getMoveY()][
+                moveInformation.getMoveX()
+            ] !== emptyPosition
+        )
+            this.makeCubeDom(
+                cubesByType[
+                    this.availableSpace[moveInformation.getMoveY()][
+                        moveInformation.getMoveX()
+                    ]
+                ],
+                moveInformation.getMoveY(),
+                moveInformation.getMoveX()
+            );
+
+        this.totalMoveAnimationsEnd++;
+        console.log(
+            "events",
+            this.totalMoveAnimationsStart,
+            this.totalMoveAnimationsEnd
+        );
+
+        if (this.totalMoveAnimationsEnd === this.totalMoveAnimationsStart)
+            // has to dispatch before removal
+            this.getGameMapDom().dispatchEvent(this.allMoveAnimationEndEvent);
+
+        if (
+            this.availableSpace[moveInformation.getFromY()][
+                moveInformation.getFromX()
+            ] === emptyPosition
+        )
+            this.removeCubeDom(
+                moveInformation.getFromY(),
+                moveInformation.getFromX()
+            );
+    }
+
+    mergeHandler(moveInformation) {
+        this.upgradeCoordinatesDom(
+            moveInformation.getMoveY(),
+            moveInformation.getMoveX()
+        );
+        if (
+            this.availableSpace[moveInformation.getFromY()][
+                moveInformation.getFromX()
+            ] == emptyPosition
+        )
+            this.removeCubeDom(
+                moveInformation.getFromY(),
+                moveInformation.getFromX()
+            );
+
+        GameScoreBoard.increaseScore(
+            cubesByType[
+                this.availableSpace[moveInformation.getMoveY()][
+                    moveInformation.getMoveX()
+                ]
+            ].getValue()
+        );
+
+        this.totalMoveAnimationsEnd++;
+
+        if (this.totalMoveAnimationsEnd === this.totalMoveAnimationsStart)
+            this.getGameMapDom().dispatchEvent(this.allMoveAnimationEndEvent);
     }
 
     restart(spawnAmount = 2) {
@@ -101,6 +281,7 @@ class GameMap {
         let freeRow = notFreeRowIndex;
         let merged = false;
         let spaceType = emptyPosition;
+        let triggeredAnimation = false;
 
         for (
             let currentColumn = 0;
@@ -131,6 +312,7 @@ class GameMap {
                             )
                         ) {
                             merged = true;
+                            triggeredAnimation = true;
                             continue;
                         } else if (
                             this.tryMergingCoordinates(
@@ -142,6 +324,7 @@ class GameMap {
                         ) {
                             freeRow = currentRow;
                             merged = true;
+                            triggeredAnimation = true;
                             continue;
                         }
                     }
@@ -155,9 +338,14 @@ class GameMap {
                         );
                         freeRow++;
                         merged = false;
+                        triggeredAnimation = true;
                     }
                 }
             }
+        }
+
+        if (!triggeredAnimation) {
+            this.getGameMapDom().dispatchEvent(this.allPopUpAnimationsEndEvent);
         }
     }
 
@@ -168,6 +356,7 @@ class GameMap {
         let merged = false;
         let spaceType = emptyPosition;
         let minusOneWidth = this.width - 1;
+        let triggeredAnimation = false;
 
         for (let currentRow = 0; currentRow < this.height; currentRow++) {
             freeColumn = notFreeColumnIndex;
@@ -198,6 +387,7 @@ class GameMap {
                             )
                         ) {
                             merged = true;
+                            triggeredAnimation = true;
                             continue;
                         } else if (
                             this.tryMergingCoordinates(
@@ -209,6 +399,7 @@ class GameMap {
                         ) {
                             freeColumn = currentColumn;
                             merged = true;
+                            triggeredAnimation = true;
                             continue;
                         }
                     }
@@ -222,9 +413,14 @@ class GameMap {
                         );
                         freeColumn--;
                         merged = false;
+                        triggeredAnimation = true;
                     }
                 }
             }
+        }
+
+        if (!triggeredAnimation) {
+            this.getGameMapDom().dispatchEvent(this.allPopUpAnimationsEndEvent);
         }
     }
 
@@ -235,6 +431,7 @@ class GameMap {
         let merged = false;
         let spaceType = emptyPosition;
         let minusOneHeight = this.height - 1;
+        let triggeredAnimation = false;
 
         for (
             let currentColumn = 0;
@@ -265,6 +462,7 @@ class GameMap {
                             )
                         ) {
                             merged = true;
+                            triggeredAnimation = true;
                             continue;
                         } else if (
                             this.tryMergingCoordinates(
@@ -276,6 +474,7 @@ class GameMap {
                         ) {
                             freeRow = currentRow;
                             merged = true;
+                            triggeredAnimation = true;
                             continue;
                         }
                     }
@@ -289,9 +488,14 @@ class GameMap {
                         );
                         freeRow--;
                         merged = false;
+                        triggeredAnimation = true;
                     }
                 }
             }
+        }
+
+        if (!triggeredAnimation) {
+            this.getGameMapDom().dispatchEvent(this.allPopUpAnimationsEndEvent);
         }
     }
 
@@ -301,6 +505,7 @@ class GameMap {
         let freeColumn = notFreeColumnIndex;
         let merged = false;
         let spaceType = emptyPosition;
+        let triggeredAnimation = false;
 
         for (let currentRow = 0; currentRow < this.height; currentRow++) {
             freeColumn = notFreeColumnIndex;
@@ -331,6 +536,7 @@ class GameMap {
                             )
                         ) {
                             merged = true;
+                            triggeredAnimation = true;
                             continue;
                         } else if (
                             this.tryMergingCoordinates(
@@ -342,6 +548,7 @@ class GameMap {
                         ) {
                             freeColumn = currentColumn;
                             merged = true;
+                            triggeredAnimation = true;
                             continue;
                         }
                     }
@@ -355,19 +562,71 @@ class GameMap {
                         );
                         freeColumn++;
                         merged = false;
+                        triggeredAnimation = true;
                     }
                 }
             }
         }
+
+        if (!triggeredAnimation) {
+            this.getGameMapDom().dispatchEvent(this.allPopUpAnimationsEndEvent);
+        }
     }
 
     moveCubeToCoordinates(moveToY, moveToX, fromY, fromX) {
-        this.makeCube(
-            cubesByType[this.availableSpace[fromY][fromX]],
+        this.animateMoveCube(moveToY, moveToX, fromY, fromX);
+
+        this.availableSpace[moveToY][moveToX] =
+            cubesByType[this.availableSpace[fromY][fromX]].getType();
+        this.availableSpace[fromY][fromX] = emptyPosition;
+        const fromCubeDom = this.getGameMapCoordinateDom(fromY, fromX);
+
+        fromCubeDom.moveInformation = new MoveInformation(
             moveToY,
-            moveToX
+            moveToX,
+            fromY,
+            fromX,
+            false
         );
-        this.removeCube(fromY, fromX);
+
+        // fromCubeDom.addEventListener("animationend", (event) => {
+        //     console.log(
+        //         "moveend",
+        //         moveToY,
+        //         moveToX,
+        //         fromY,
+        //         fromX,
+        //         this.availableSpace[moveToY][moveToX],
+        //         this.availableSpace
+        //     );
+
+        //     if (this.availableSpace[moveToY][moveToX] !== emptyPosition)
+        //         this.makeCubeDom(
+        //             cubesByType[this.availableSpace[moveToY][moveToX]],
+        //             moveToY,
+        //             moveToX
+        //         );
+
+        //     this.totalMoveAnimationsEnd++;
+        //     console.log(
+        //         "events",
+        //         this.totalMoveAnimationsStart,
+        //         this.totalMoveAnimationsEnd
+        //     );
+
+        //     if (this.totalMoveAnimationsEnd === this.totalMoveAnimationsStart)
+        //         // has to dispatch before removal
+        //         this.getGameMapDom().dispatchEvent(this.allMoveAnimationEndEvent);
+
+        //     if (this.availableSpace[fromY][fromX] === emptyPosition)
+        //         this.removeCubeDom(fromY, fromX);
+        //     // this.makeCube(
+        //     //     cubesByType[this.availableSpace[fromY][fromX]],
+        //     //     moveToY,
+        //     //     moveToX
+        //     // );
+        //     // this.removeCube(fromY, fromX);
+        // });
     }
 
     tryMergingCoordinates(mergToY, mergToX, fromY, fromX) {
@@ -385,11 +644,29 @@ class GameMap {
                 this.availableSpace[fromY][fromX]
             )
         ) {
-            this.upgradeCoordinates(mergToY, mergToX);
-            this.removeCube(fromY, fromX);
-            GameScoreBoard.increaseScore(
-                cubesByType[this.availableSpace[mergToY][mergToX]].getValue()
+            this.animateMoveCube(mergToY, mergToX, fromY, fromX);
+
+            const upgradedCube =
+                cubesByType[
+                    this.availableSpace[mergToY][mergToX]
+                ].getUpgradedCube();
+            this.availableSpace[mergToY][mergToX] = upgradedCube.getType();
+            this.availableSpace[fromY][fromX] = emptyPosition;
+
+            const fromCubeDom = this.getGameMapCoordinateDom(fromY, fromX);
+            fromCubeDom.moveInformation = new MoveInformation(
+                mergToY,
+                mergToX,
+                fromY,
+                fromX,
+                true
             );
+
+            // fromCubeDom.addEventListener("animationend", () => {
+            //     // this.upgradeCoordinates(mergToY, mergToX);
+            //     // this.removeCube(fromY, fromX);
+
+            // });
             return true;
         }
 
@@ -397,11 +674,19 @@ class GameMap {
     }
 
     upgradeCoordinates(row, column) {
-        let upgradedCubeType =
+        const upgradedCube =
             cubesByType[this.availableSpace[row][column]].getUpgradedCube();
 
         this.removeCube(row, column);
-        this.makeCube(upgradedCubeType, row, column);
+        this.makeCube(upgradedCube, row, column);
+        this.animatePopUpCube(row, column);
+    }
+
+    upgradeCoordinatesDom(row, column) {
+        const upgradedCube = cubesByType[this.availableSpace[row][column]];
+
+        //this.removeCubeDom(row, column);
+        this.makeCubeDom(upgradedCube, row, column);
         this.animatePopUpCube(row, column);
     }
 
@@ -458,6 +743,11 @@ class GameMap {
     }
 
     makeCube(cubeByType, y, x) {
+        this.makeCubeDom(cubeByType, y, x);
+        this.availableSpace[y][x] = cubeByType.getType();
+    }
+
+    makeCubeDom(cubeByType, y, x) {
         let coordinateDom = this.getGameMapCoordinateDom(y, x);
         coordinateDom.textContent = cubeByType.getValue();
         coordinateDom.className =
@@ -465,22 +755,46 @@ class GameMap {
             cubeByType.getBgColor() +
             " " +
             cubeByType.getTextColor();
-
-        this.availableSpace[y][x] = cubeByType.getType();
     }
 
     animatePopUpCube(y, x) {
         let coordinateDom = this.getGameMapCoordinateDom(y, x);
+        this.totalPopUpsStart++;
         this.gameAnimationManager.animatePopUp(coordinateDom);
     }
 
-    animateMoveCube(toY, toX, fromY, fromX) {}
+    animateMoveCube(toY, toX, fromY, fromX) {
+        let toDom = this.getGameMapCoordinateDom(toY, toX);
+        let fromDom = this.getGameMapCoordinateDom(fromY, fromX);
+
+        if (
+            toDom === undefined ||
+            toDom === null ||
+            fromDom === undefined ||
+            fromDom === null
+        )
+            return;
+
+        let moveEnum = null;
+
+        if (toY < fromY) moveEnum = MOVE_DIRECTIONS_ENUM.backward;
+        else if (toY > fromY) moveEnum = MOVE_DIRECTIONS_ENUM.forward;
+        else if (toX < fromX) moveEnum = MOVE_DIRECTIONS_ENUM.left;
+        else moveEnum = MOVE_DIRECTIONS_ENUM.right;
+
+        this.totalMoveAnimationsStart++;
+        this.gameAnimationManager.startMoveAnimation(moveEnum, toDom, fromDom);
+    }
 
     removeCube(y, x) {
+        this.removeCubeDom(y, x);
+        this.availableSpace[y][x] = emptyPosition;
+    }
+
+    removeCubeDom(y, x) {
         let coordinateDom = this.getGameMapCoordinateDom(y, x);
         coordinateDom.textContent = "";
         coordinateDom.className = cubeDomDefaultClassList;
-        this.availableSpace[y][x] = emptyPosition;
     }
 
     getRandomCube() {

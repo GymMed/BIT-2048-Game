@@ -49,7 +49,17 @@ class Cube {
     }
 
     getUpgradedCube() {
-        return cubesByType[this.getIndexOfUpgrade()];
+        const upgradedCube = cubesByType[this.getIndexOfUpgrade()];
+
+        if (upgradedCube.getType() !== CUBE_TYPES_ENUM.overFlow)
+            return upgradedCube;
+        else
+            return new Cube(
+                this.getType(),
+                parseInt(this.getValue()) * 2,
+                this.getTextColor(),
+                this.getBgColor()
+            );
     }
 
     getIndexOfUpgrade() {

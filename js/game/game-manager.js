@@ -15,7 +15,11 @@ class GameManager {
     ) {
         this.state = GAME_STATE_ENUM.running;
         this.scoreBoard = new GameScoreBoard(currentScoreDom, bestScoreDom);
-        this.gameMap = new GameMap(mapDom);
+        this.gameMap = new GameMap(
+            mapDom,
+            this.moveEndAnimations.bind(this),
+            this.popUpEndAnimations.bind(this)
+        );
 
         this.newGameButtonDom = newGameButtonDom;
         this.gameMenuWinDom = gameMenuWinDom;
@@ -74,10 +78,23 @@ class GameManager {
         }
     }
 
-    turnEnd() {
+    turnEnd() {}
+
+    moveEndAnimations() {
+        console.log("triggered moveEndAnimations");
         if (this.gameMap.spawnCubes(1) === null && this.gameMap.isLost()) {
             this.lose();
         }
+    }
+
+    popUpEndAnimations() {
+        console.log(
+            "popUpEndAnim",
+            this.state,
+            this.state === GAME_STATE_ENUM.animating
+        );
+        if (this.state === GAME_STATE_ENUM.animating)
+            this.state = GAME_STATE_ENUM.running;
     }
 
     win() {
@@ -93,15 +110,17 @@ class GameManager {
 
     restart() {
         this.gameMap.restart();
-        // this.state = GAME_STATE_ENUM.running;
+        this.state = GAME_STATE_ENUM.running;
 
         this.hideLoseDom();
         this.hideWinDom();
     }
 
     handleKeyInput(event) {
+        console.log("caught event", event.key, this.state);
         switch (this.state) {
             case GAME_STATE_ENUM.running: {
+                this.state = GAME_STATE_ENUM.animating;
                 this.handleRunningKeyInput(event);
                 break;
             }
