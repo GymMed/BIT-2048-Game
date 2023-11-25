@@ -103,4 +103,4 @@ const cubesByType = [
 ];
 
 const cubeDomDefaultClassList =
-    "col w-25 h-100 d-flex justify-content-center align-items-center fs-1 fw-bold ";
+    "col w-25 h-100 d-flex justify-content-center align-items-center fs-1 fw-bold rounded-1 ";

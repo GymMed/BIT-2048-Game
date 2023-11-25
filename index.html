@@ -62,7 +62,7 @@
                     >
                         <div class="scores d-flex gap-1 text-center">
                             <div
-                                class="score d-flex flex-column pb-1 pt-2 px-3 w-100 bg-brand-300"
+                                class="score d-flex flex-column pb-1 pt-2 px-3 w-100 bg-brand-300 rounded-1"
                             >
                                 <div class="score__header fs-6">SCORE</div>
                                 <div class="score__body" id="current-score">
@@ -70,7 +70,7 @@
                                 </div>
                             </div>
                             <div
-                                class="score d-flex flex-column pb-1 pt-2 px-3 w-100 bg-brand-300"
+                                class="score d-flex flex-column pb-1 pt-2 px-3 w-100 bg-brand-300 rounded-1"
                             >
                                 <div class="score__header fs-6">BEST</div>
                                 <div class="score__body" id="best-score">0</div>
@@ -79,7 +79,7 @@
                         <div class="new-game d-flex justify-content-end">
                             <button
                                 type="button"
-                                class="bg-brand-400 border-0 fw-bold text-white"
+                                class="bg-brand-400 border-0 fw-bold text-white rounded-1"
                                 id="btn-new-game"
                             >
                                 <div class="spc-btn py-2 px-3">New Game</div>
@@ -87,7 +87,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="game__body bg-brand-300 shadow position-relative">
+                <div
+                    class="game__body bg-brand-300 shadow position-relative rounded"
+                >
                     <div
                         class="position-absolute d-flex flex-column justify-content-center align-items-center w-100 h-100 text-white fw-bold z-1 d-none"
                         id="game-menu-win"
@@ -100,13 +102,13 @@
                             <div class="d-flex gap-3 fs-6">
                                 <button
                                     type="button"
-                                    class="btn bg-brand-400 fw-bold text-white"
+                                    class="btn bg-brand-400 fw-bold text-white btn-brown-outline"
                                     id="btn-keep-going"
                                 >
                                     Keep going</button
                                 ><button
                                     type="button"
-                                    class="btn bg-brand-400 fw-bold text-white"
+                                    class="btn bg-brand-400 fw-bold text-white btn-brown-outline"
                                     id="btn-win-try-again"
                                 >
                                     Try again
@@ -130,7 +132,7 @@
                             >
                                 <button
                                     type="button"
-                                    class="btn bg-brand-400 fw-bold text-white"
+                                    class="btn bg-brand-400 fw-bold text-white btn-brown-outline"
                                     id="btn-lose-try-again"
                                 >
                                     Try again
@@ -172,42 +174,76 @@
                         class="d-flex flex-column p-3 gap-3 w-100 h-100 text-center"
                     >
                         <div class="d-flex h-25 w-100 gap-3">
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
                         </div>
                         <div class="d-flex h-25 w-100 gap-3">
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
                         </div>
                         <div class="d-flex h-25 w-100 gap-3">
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
                         </div>
                         <div class="d-flex h-25 w-100 gap-3">
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
-                            <div class="col w-25 h-100 bg-cube-missing"></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
+                            <div
+                                class="col w-25 h-100 bg-cube-missing rounded-1"
+                            ></div>
                         </div>
                     </div>
                 </div>
             </section>
         </div>
-        <script src="js/game/local-storage-manager.js"></script>
-        <script src="js/game/game-score-board.js"></script>
-        <script src="js/cube.js"></script>
-        <script src="js/game/game-move-information.js"></script>
-        <script src="js/game/game-animation-manager.js"></script>
-        <script src="js/game/game-map-column.js"></script>
-        <script src="js/game/game-map-row.js"></script>
-        <script src="js/game/game-map.js"></script>
-        <script src="js/game/game-manager.js"></script>
+        <script src="js/game/LocalStorageManager.js"></script>
+        <script src="js/game/GameScoreBoard.js"></script>
+        <script src="js/Cube.js"></script>
+        <script src="js/game/GameAnimationAttachment.js"></script>
+        <script src="js/game/GameAnimationAttachmentsManager.js"></script>
+        <script src="js/game/GameMoveInformation.js"></script>
+        <script src="js/game/GameAnimationManager.js"></script>
+        <script src="js/game/GameMapColumn.js"></script>
+        <script src="js/game/GameMapRow.js"></script>
+        <script src="js/game/GameMap.js"></script>
+        <script src="js/game/GameManager.js"></script>
         <script src="scripts.js"></script>
     </body>
 </html>

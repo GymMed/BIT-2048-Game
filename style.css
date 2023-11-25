@@ -114,3 +114,9 @@ body {
     width: 30rem;
     height: 30rem;
 }
+
+.btn-brown-outline:hover {
+    border: 1px solid var(--brand-400);
+    color: var(--brand-400) !important;
+    background-color: transparent;
+}

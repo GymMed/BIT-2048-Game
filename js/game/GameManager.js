@@ -20,6 +20,7 @@ class GameManager {
             this.moveEndAnimations.bind(this),
             this.popUpEndAnimations.bind(this)
         );
+        this.hasEndedMoveAnimations = false;
 
         this.newGameButtonDom = newGameButtonDom;
         this.gameMenuWinDom = gameMenuWinDom;
@@ -81,18 +82,16 @@ class GameManager {
     turnEnd() {}
 
     moveEndAnimations() {
-        console.log("triggered moveEndAnimations");
+        this.hasEndedMoveAnimations = true;
+
         if (this.gameMap.spawnCubes(1) === null && this.gameMap.isLost()) {
             this.lose();
         }
     }
 
     popUpEndAnimations() {
-        console.log(
-            "popUpEndAnim",
-            this.state,
-            this.state === GAME_STATE_ENUM.animating
-        );
+        if (this.hasEndedMoveAnimations && this.gameMap.isLost()) this.lose();
+
         if (this.state === GAME_STATE_ENUM.animating)
             this.state = GAME_STATE_ENUM.running;
     }
@@ -117,10 +116,10 @@ class GameManager {
     }
 
     handleKeyInput(event) {
-        console.log("caught event", event.key, this.state);
         switch (this.state) {
             case GAME_STATE_ENUM.running: {
                 this.state = GAME_STATE_ENUM.animating;
+                this.hasEndedMoveAnimations = false;
                 this.handleRunningKeyInput(event);
                 break;
             }

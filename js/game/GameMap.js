@@ -50,22 +50,12 @@ class GameMap {
 
     addAnimationsListenersForMap() {
         this.mapDom.addEventListener("allMoveAnimationsEnd", () => {
-            console.log(
-                this.totalMoveAnimationsEnd,
-                this.totalMoveAnimationsStart,
-                "animator moves"
-            );
             this.totalMoveAnimationsStart = 0;
             this.totalMoveAnimationsEnd = 0;
             this.moveAnimationsEndTrigger();
         });
 
         this.mapDom.addEventListener("allPopUpAnimationsEnd", () => {
-            console.log(
-                this.totalPopUpsEnd,
-                this.totalPopUpsStart,
-                "animator pop ups"
-            );
             this.totalPopUpsStart = 0;
             this.totalPopUpsEnd = 0;
             this.popUpAnimationsEndTrigger();
@@ -100,49 +90,38 @@ class GameMap {
         event.currentTarget.style.animationDuration = "";
 
         if (event.animationName == popAnimationName) {
-            console.log("zd", event.animationName);
             this.popHandler();
+            this.getAnimationManager().tryStartingNextAnimation(
+                event.currentTarget
+            );
             return;
         }
 
         if (
             event.currentTarget.moveInformation === undefined ||
             !(event.currentTarget.moveInformation instanceof MoveInformation) ||
-            !event.animationName.includes(animationPrefix)
-        )
+            !event.animationName.includes(dynamicAnimationPrefix)
+        ) {
+            this.getAnimationManager().tryStartingNextAnimation(
+                event.currentTarget
+            );
             return;
+        }
 
         let moveInformation = event.currentTarget.moveInformation;
-        console.log(
-            "moveend",
-            moveInformation.getMoveY(),
-            moveInformation.getMoveX(),
-            moveInformation.getFromY(),
-            moveInformation.getFromX(),
-            this.availableSpace[moveInformation.getMoveY()][
-                moveInformation.getMoveX()
-            ],
-            this.availableSpace,
-            event.animationName
-        );
 
         if (moveInformation.isMerged()) {
             this.mergeHandler(moveInformation);
         } else {
             this.moveHandler(moveInformation);
         }
-
-        // this.makeCube(
-        //     cubesByType[this.availableSpace[fromY][fromX]],
-        //     moveToY,
-        //     moveToX
-        // );
-        // this.removeCube(fromY, fromX);
+        this.getAnimationManager().tryStartingNextAnimation(
+            event.currentTarget
+        );
     }
 
     popHandler() {
         this.totalPopUpsEnd++;
-        console.log("popHandler", this.totalPopUpsStart, this.totalPopUpsEnd);
 
         if (this.totalPopUpsEnd === this.totalPopUpsStart)
             this.getGameMapDom().dispatchEvent(this.allPopUpAnimationsEndEvent);
@@ -165,15 +144,6 @@ class GameMap {
             );
 
         this.totalMoveAnimationsEnd++;
-        console.log(
-            "events",
-            this.totalMoveAnimationsStart,
-            this.totalMoveAnimationsEnd
-        );
-
-        if (this.totalMoveAnimationsEnd === this.totalMoveAnimationsStart)
-            // has to dispatch before removal
-            this.getGameMapDom().dispatchEvent(this.allMoveAnimationEndEvent);
 
         if (
             this.availableSpace[moveInformation.getFromY()][
@@ -184,6 +154,10 @@ class GameMap {
                 moveInformation.getFromY(),
                 moveInformation.getFromX()
             );
+
+        if (this.totalMoveAnimationsEnd === this.totalMoveAnimationsStart)
+            // has to dispatch before removal
+            this.getGameMapDom().dispatchEvent(this.allMoveAnimationEndEvent);
     }
 
     mergeHandler(moveInformation) {
@@ -243,6 +217,12 @@ class GameMap {
                 currentColumn++
             ) {
                 if (
+                    this.availableSpace[currentRow][currentColumn] ==
+                        emptyPosition ||
+                    this.availableSpace[currentRow][currentColumn + 1] ==
+                        emptyPosition ||
+                    this.availableSpace[currentRow + 1][currentColumn] ==
+                        emptyPosition ||
                     this.canUpgrade(
                         this.availableSpace[currentRow][currentColumn],
                         this.availableSpace[currentRow][currentColumn + 1]
@@ -263,6 +243,10 @@ class GameMap {
             currentColumn++
         ) {
             if (
+                this.availableSpace[minusOneHeight][currentColumn] ==
+                    emptyPosition ||
+                this.availableSpace[minusOneHeight][currentColumn + 1] ==
+                    emptyPosition ||
                 this.canUpgrade(
                     this.availableSpace[minusOneHeight][currentColumn],
                     this.availableSpace[minusOneHeight][currentColumn + 1]
@@ -588,45 +572,6 @@ class GameMap {
             fromX,
             false
         );
-
-        // fromCubeDom.addEventListener("animationend", (event) => {
-        //     console.log(
-        //         "moveend",
-        //         moveToY,
-        //         moveToX,
-        //         fromY,
-        //         fromX,
-        //         this.availableSpace[moveToY][moveToX],
-        //         this.availableSpace
-        //     );
-
-        //     if (this.availableSpace[moveToY][moveToX] !== emptyPosition)
-        //         this.makeCubeDom(
-        //             cubesByType[this.availableSpace[moveToY][moveToX]],
-        //             moveToY,
-        //             moveToX
-        //         );
-
-        //     this.totalMoveAnimationsEnd++;
-        //     console.log(
-        //         "events",
-        //         this.totalMoveAnimationsStart,
-        //         this.totalMoveAnimationsEnd
-        //     );
-
-        //     if (this.totalMoveAnimationsEnd === this.totalMoveAnimationsStart)
-        //         // has to dispatch before removal
-        //         this.getGameMapDom().dispatchEvent(this.allMoveAnimationEndEvent);
-
-        //     if (this.availableSpace[fromY][fromX] === emptyPosition)
-        //         this.removeCubeDom(fromY, fromX);
-        //     // this.makeCube(
-        //     //     cubesByType[this.availableSpace[fromY][fromX]],
-        //     //     moveToY,
-        //     //     moveToX
-        //     // );
-        //     // this.removeCube(fromY, fromX);
-        // });
     }
 
     tryMergingCoordinates(mergToY, mergToX, fromY, fromX) {
@@ -662,11 +607,6 @@ class GameMap {
                 true
             );
 
-            // fromCubeDom.addEventListener("animationend", () => {
-            //     // this.upgradeCoordinates(mergToY, mergToX);
-            //     // this.removeCube(fromY, fromX);
-
-            // });
             return true;
         }
 
@@ -691,7 +631,11 @@ class GameMap {
     }
 
     canUpgrade(mergeToSpaceColumnType, currentSpaceColumnType) {
-        if (mergeToSpaceColumnType == currentSpaceColumnType) return true;
+        if (
+            mergeToSpaceColumnType == currentSpaceColumnType &&
+            mergeToSpaceColumnType !== emptyPosition
+        )
+            return true;
 
         return false;
     }
@@ -760,7 +704,7 @@ class GameMap {
     animatePopUpCube(y, x) {
         let coordinateDom = this.getGameMapCoordinateDom(y, x);
         this.totalPopUpsStart++;
-        this.gameAnimationManager.animatePopUp(coordinateDom);
+        this.getAnimationManager().animatePopUp(coordinateDom);
     }
 
     animateMoveCube(toY, toX, fromY, fromX) {
@@ -783,7 +727,7 @@ class GameMap {
         else moveEnum = MOVE_DIRECTIONS_ENUM.right;
 
         this.totalMoveAnimationsStart++;
-        this.gameAnimationManager.startMoveAnimation(moveEnum, toDom, fromDom);
+        this.getAnimationManager().startMoveAnimation(moveEnum, toDom, fromDom);
     }
 
     removeCube(y, x) {
@@ -793,6 +737,7 @@ class GameMap {
 
     removeCubeDom(y, x) {
         let coordinateDom = this.getGameMapCoordinateDom(y, x);
+
         coordinateDom.textContent = "";
         coordinateDom.className = cubeDomDefaultClassList;
     }
@@ -845,6 +790,10 @@ class GameMap {
             }
         }
         return new GameMapRow(totalFreeColumns, positions);
+    }
+
+    getAnimationManager() {
+        return this.gameAnimationManager;
     }
 
     getWidth() {

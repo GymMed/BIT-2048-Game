@@ -6,13 +6,13 @@ const MOVE_DIRECTIONS_ENUM = {
 };
 
 const moveAnimationNames = [
-    "dynamicForwadMove",
-    "dynamicRightMove",
-    "dynamicBackwardMove",
-    "dynamicLeftMove",
+    "ForwadMove",
+    "RightMove",
+    "BackwardMove",
+    "LeftMove",
 ];
 
-const animationPrefix = "dynamic";
+const dynamicAnimationPrefix = "dynamic";
 const popAnimationName = "pop";
 
 class GameAnimationManager {
@@ -20,18 +20,21 @@ class GameAnimationManager {
         this.dynamicStyleDom = document.createElement("style");
         document.head.appendChild(this.dynamicStyleDom);
         this.storedAnimationNames = [];
+        this.gameAnimationAttachmentsManager =
+            new GameAnimationAttachmentsManager();
+    }
+
+    getAnimationAttachmentsManager() {
+        return this.gameAnimationAttachmentsManager;
     }
 
     animatePopUp(dom) {
         if (dom === null || dom === undefined) return;
 
-        dom.style.animationName = popAnimationName;
-        dom.style.animationDuration = "0.3s";
-
-        // dom.addEventListener("animationend", function () {
-        //     dom.style.animationName = "";
-        //     dom.style.animationDuration = "";
-        // });
+        this.getAnimationAttachmentsManager().attachAnimation(
+            dom,
+            new GameAnimationAttachment(popAnimationName, "0.05s")
+        );
     }
 
     startMoveAnimation(moveEnum, toCubeDom, fromCubeDom) {
@@ -41,16 +44,11 @@ class GameAnimationManager {
             fromCubeDom
         );
         const animationName = animationPrefix + "-" + distanceInAxis;
-        console.log(
-            "aniamtionStart = ",
-            animationName,
-            toCubeDom,
-            fromCubeDom,
-            distanceInAxis
-        );
 
-        fromCubeDom.style.animationName = animationName;
-        fromCubeDom.style.animationDuration = "0.2s";
+        this.getAnimationAttachmentsManager().attachAnimation(
+            fromCubeDom,
+            new GameAnimationAttachment(animationName, "0.1s")
+        );
 
         if (!this.hasStoredAnimation(animationName)) {
             let keyFrames = this.getMoveAnimationFrames(
@@ -61,12 +59,10 @@ class GameAnimationManager {
 
             this.tryInjectingKeyFrames(keyFrames, animationName);
         }
+    }
 
-        console.log("start 2");
-        // fromCubeDom.addEventListener("animationend", function () {
-        //     fromCubeDom.style.animationName = "";
-        //     fromCubeDom.style.animationDuration = "";
-        // });
+    tryStartingNextAnimation(dom) {
+        this.getAnimationAttachmentsManager().startAttachedAnimation(dom);
     }
 
     hasStoredAnimation(animationName) {
@@ -95,15 +91,30 @@ class GameAnimationManager {
     getMoveAnimationPrefix(moveEnum) {
         switch (moveEnum) {
             case MOVE_DIRECTIONS_ENUM.forward:
-                return moveAnimationNames[MOVE_DIRECTIONS_ENUM.forward];
+                return (
+                    dynamicAnimationPrefix +
+                    moveAnimationNames[MOVE_DIRECTIONS_ENUM.forward]
+                );
             case MOVE_DIRECTIONS_ENUM.right:
-                return moveAnimationNames[MOVE_DIRECTIONS_ENUM.right];
+                return (
+                    dynamicAnimationPrefix +
+                    moveAnimationNames[MOVE_DIRECTIONS_ENUM.right]
+                );
             case MOVE_DIRECTIONS_ENUM.backward:
-                return moveAnimationNames[MOVE_DIRECTIONS_ENUM.backward];
+                return (
+                    dynamicAnimationPrefix +
+                    moveAnimationNames[MOVE_DIRECTIONS_ENUM.backward]
+                );
             case MOVE_DIRECTIONS_ENUM.left:
-                return moveAnimationNames[MOVE_DIRECTIONS_ENUM.left];
+                return (
+                    dynamicAnimationPrefix +
+                    moveAnimationNames[MOVE_DIRECTIONS_ENUM.left]
+                );
             default:
-                return moveAnimationNames[MOVE_DIRECTIONS_ENUM.left];
+                return (
+                    dynamicAnimationPrefix +
+                    moveAnimationNames[MOVE_DIRECTIONS_ENUM.left]
+                );
         }
     }
 
