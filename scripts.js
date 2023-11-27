@@ -6,8 +6,6 @@ let bestScoreDom = document.querySelector("#best-score");
 let gameMenuWinDom = document.querySelector("#game-menu-win");
 let gameMenuLoseDom = document.querySelector("#game-menu-lose");
 
-//gameMenuWin.style.display = "none";
-
 let gameManager = new GameManager(
     mapDom,
     newGameButtonDom,
@@ -16,3 +14,13 @@ let gameManager = new GameManager(
     gameMenuWinDom,
     gameMenuLoseDom
 );
+
+let howToDom = document.querySelector(".how-to");
+let howToBtnDom = document.querySelector(".info__tutorial__btn");
+
+howToBtnDom.addEventListener("click", function () {
+    if (howToDom.classList.contains("d-none")) {
+        howToDom.classList.remove("d-none");
+    } else howToDom.classList.add("d-none");
+    console.log("hi");
+});

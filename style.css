@@ -98,8 +98,10 @@ body {
     color: var(--brand-800);
 }
 
-.info__tutorial__a {
+.info__tutorial__btn {
     text-decoration: underline;
+    border: none;
+    background-color: transparent;
 }
 
 .new-game button:hover .spc-btn {

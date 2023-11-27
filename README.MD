@@ -6,7 +6,7 @@ This BIT course task is about creating 2048 game using JavaScript and bootstrap.
 
 ## Controls
 
-Up Arrow - Shift cubes upwards.
-Right Arrow - Shift cubes to the right side.
-Down Arrow - Shift cubes downwards.
-Left Arrow - Shift cubes to the left side.
+Up Arrow - Shift cubes upwards.<br />
+Right Arrow - Shift cubes to the right side.<br />
+Down Arrow - Shift cubes downwards.<br />
+Left Arrow - Shift cubes to the left side.<br />
