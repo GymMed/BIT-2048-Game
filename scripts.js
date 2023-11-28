@@ -22,5 +22,4 @@ howToBtnDom.addEventListener("click", function () {
     if (howToDom.classList.contains("d-none")) {
         howToDom.classList.remove("d-none");
     } else howToDom.classList.add("d-none");
-    console.log("hi");
 });

@@ -122,3 +122,10 @@ body {
     color: var(--brand-400) !important;
     background-color: transparent;
 }
+
+@media only screen and (max-width: 600px) {
+    .game__body {
+        width: 20rem;
+        height: 20rem;
+    }
+}
