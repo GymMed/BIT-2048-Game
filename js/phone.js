@@ -1,7 +1,24 @@
 let startX, startY;
 let gameBody = document.querySelector(".game__body");
+let isTouchInGameBody = false;
+
+document.addEventListener("keydown", function (event) {
+    if (
+        ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(
+            event.code
+        ) > -1
+    ) {
+        event.preventDefault();
+    }
+});
+
+//disables scrolling on focus drag on gameBody
+gameBody.addEventListener("touchmove", (event) => {
+    if (isTouchInGameBody) event.preventDefault();
+});
 
 gameBody.addEventListener("touchstart", (event) => {
+    isTouchInGameBody = true;
     let lastTouch = event.touches.length - 1;
 
     startX = event.touches[lastTouch].clientX;
@@ -9,6 +26,8 @@ gameBody.addEventListener("touchstart", (event) => {
 });
 
 gameBody.addEventListener("touchend", (event) => {
+    isTouchInGameBody = false;
+
     if (!startX || !startY) {
         return; // Touchstart event not registered
     }
